@@ -1,46 +1,39 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { removeItem, updateQuantity } from './CartSlice';
-
 const CartItem = () => {
   const cart = useSelector(state => state.cart.items);
   const dispatch = useDispatch();
 
-  const handleIncrement = (item) => {
-    dispatch(updateQuantity({ name: item.name, quantity: item.quantity + 1 }));
-  };
-
-  const handleDecrement = (item) => {
-    if (item.quantity > 1) {
-      dispatch(updateQuantity({ name: item.name, quantity: item.quantity - 1 }));
-    } else {
-      dispatch(removeItem(item.name));
-    }
+  // REQUIRED: Function to calculate total amount for all products in the cart
+  const calculateTotalAmount = () => {
+    let total = 0;
+    cart.forEach((item) => {
+      // Ensure you strip non-numeric characters (like '$') before calculating
+      const priceValue = parseFloat(item.cost.replace('$', ''));
+      total += item.quantity * priceValue;
+    });
+    return total;
   };
 
   return (
     <div className="cart-container">
-      <h2>Your Shopping Cart</h2>
+      {/* REQUIRED: Display the total amount */}
+      <h2 style={{ color: 'black' }}>Total Cart Amount: ${calculateTotalAmount()}</h2>
+      
       <div>
-        {cart.map(item => (
-          <div key={item.name} className="cart-item">
-            <img src={item.image} alt={item.name} />
-            <div className="item-details">
-              <h3>{item.name}</h3>
-              <p>Unit Price: {item.cost}</p>
-              <div className="quantity-controls">
-                <button onClick={() => handleDecrement(item)}>-</button>
-                <span>{item.quantity}</span>
-                <button onClick={() => handleIncrement(item)}>+</button>
-              </div>
-              <button onClick={() => dispatch(removeItem(item.name))}>Remove</button>
-            </div>
+        {cart.map((item) => (
+          <div className="cart-item" key={item.name}>
+            {/* ... other item details ... */}
+            <div>Unit Price: {item.cost}</div>
+            <div>Quantity: {item.quantity}</div>
+            {/* Optional: Show subtotal for this specific item */}
+            <div>Subtotal: ${parseFloat(item.cost.replace('$', '')) * item.quantity}</div>
           </div>
         ))}
       </div>
-      <button className="checkout-btn">Checkout (Coming Soon)</button>
+      
+      <div className="continue_shopping_btn">
+        <button className="get-started-button" onClick={(e) => handleContinueShopping(e)}>Continue Shopping</button>
+        <button className="get-started-button" onClick={() => alert('Functionality to be added for future reference')}>Checkout</button>
+      </div>
     </div>
   );
 };
-
-export default CartItem;
